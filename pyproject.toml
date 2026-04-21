@@ -1,0 +1,23 @@
+[project]
+name = "transcrire"
+version = "0.1.0"
+requires-python = ">=3.12"
+description = "CLI/GUI tool for solo podcasters to repurpose episode audio into social media assets."
+
+[project.dependencies]
+"pydantic-settings>=2.14.0",
+"python-dotenv>=1.2.2",
+
+[tool.ruff]
+line-length = 88
+target-version = "py312"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+
+[dependency-groups]
+dev = [
+    "pytest>=9.0.3",
+    "pytest-mock>=3.15.1",
+    "ruff>=0.15.11",
+]
