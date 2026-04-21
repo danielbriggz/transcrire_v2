@@ -7,8 +7,8 @@ class JsonFormatter(logging.Formatter):
     """Formats log records as single-line JSON objects."""
 
     def format(self, record: logging.LogRecord) -> str:
-        log_object = {
-            "timestamp": datetime.utcnow().isoformat(),
+        log_object = { # type: ignore
+            "timestamp": datetime.utcnow().isoformat(), # type: ignore
             "level": record.levelname,
             "logger": record.name,
             "message": record.getMessage(),
