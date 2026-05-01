@@ -1,7 +1,7 @@
 from typing import Optional
 from dataclasses import dataclass
 
-import google.generativeai as genai
+from google import genai
 
 from utils.retry import with_aggressive_retry, TransientError, PermanentError, CaptionError
 from app.config import config
@@ -21,8 +21,8 @@ def _get_model():
     if _model is None:
         if not config.gemini_api_key:
             raise PermanentError("GEMINI_API_KEY is not set. Add it to your .env file.")
-        genai.configure(api_key=config.gemini_api_key)
-        _model = genai.GenerativeModel(MODEL_NAME)
+        _client = genai.Client(api_key=config.gemini_api_key)
+        _model = _client.models
         logger.info({"event": "gemini_model_initialised", "model": MODEL_NAME})
     return _model
 
