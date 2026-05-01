@@ -6,6 +6,7 @@ description = "CLI/GUI tool for solo podcasters to repurpose episode audio into 
 dependencies = [
     "aiosqlite>=0.22.1",
     "feedparser>=6.0.12",
+    "google-genai>=1.74.0",
     "google-generativeai>=0.8.6",
     "groq>=1.2.0",
     "httpx>=0.28.1",

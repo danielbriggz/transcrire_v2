@@ -22,22 +22,31 @@ def test_transcribe_file_returns_result(mock_groq_response, tmp_audio):
 
 def test_transcribe_file_raises_transient_on_429(tmp_audio):
     from groq import APIStatusError
-    mock_err = MagicMock(spec=APIStatusError)
-    mock_err.status_code = 429
+    import httpx
+
+    real_err = APIStatusError(
+        message="rate limited",
+        response=MagicMock(status_code=429),
+        body={}
+    )
 
     with patch("services.groq._get_client") as mock_client:
-        mock_client.return_value.audio.transcriptions.create.side_effect = mock_err
+        mock_client.return_value.audio.transcriptions.create.side_effect = real_err
         with pytest.raises(TransientError):
-            transcribe_file.__wrapped__(tmp_audio)  # bypass retry decorator
+            transcribe_file.__wrapped__(tmp_audio)
 
 
 def test_transcribe_file_raises_permanent_on_401(tmp_audio):
     from groq import APIStatusError
-    mock_err = MagicMock(spec=APIStatusError)
-    mock_err.status_code = 401
+
+    real_err = APIStatusError(
+        message="unauthorized",
+        response=MagicMock(status_code=401),
+        body={}
+    )
 
     with patch("services.groq._get_client") as mock_client:
-        mock_client.return_value.audio.transcriptions.create.side_effect = mock_err
+        mock_client.return_value.audio.transcriptions.create.side_effect = real_err
         with pytest.raises(PermanentError):
             transcribe_file.__wrapped__(tmp_audio)
 
