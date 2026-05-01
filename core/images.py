@@ -99,7 +99,8 @@ def render_quote_card(config: QuoteCardConfig) -> QuoteCardResult:
 
 def _measure_brightness(image: Image.Image) -> float:
     """Perceptual brightness using ITU-R 601 luma. Returns 0–255."""
-    pixels = list(image.convert("L").getdata())
+    grayscale = image.convert("L")
+    pixels = list(grayscale.tobytes())
     return sum(pixels) / len(pixels)
 
 

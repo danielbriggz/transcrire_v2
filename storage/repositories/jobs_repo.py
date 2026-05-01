@@ -1,8 +1,8 @@
 import uuid
 from datetime import datetime, timezone
 from typing import Optional
-
 from domain.models import Job
+
 from domain.enums import Stage, JobStatus
 from storage.db import get_cursor, get_connection
 from app.logging import get_logger
@@ -133,9 +133,9 @@ class JobsRepository:
         )
     
     def set_metadata(self, job_id: str, data: dict) -> None:
-    import json
-    with get_cursor(self._conn) as cur:
-        cur.execute(
-            "UPDATE jobs SET metadata_json = ? WHERE id = ?",
-            (json.dumps(data), job_id)
-        )
+        import json
+        with get_cursor(self._conn) as cur:
+            cur.execute(
+                "UPDATE jobs SET metadata_json = ? WHERE id = ?",
+                (json.dumps(data), job_id)
+            )
