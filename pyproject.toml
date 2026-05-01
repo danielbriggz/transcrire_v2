@@ -4,8 +4,14 @@ version = "0.1.0"
 requires-python = ">=3.12"
 description = "CLI/GUI tool for solo podcasters to repurpose episode audio into social media assets."
 dependencies = [
+    "aiosqlite>=0.22.1",
+    "feedparser>=6.0.12",
+    "google-generativeai>=0.8.6",
+    "groq>=1.2.0",
+    "httpx>=0.28.1",
     "pydantic-settings>=2.14.0",
-    "python-dotenv>=1.0.0"
+    "python-dotenv>=1.0.0",
+    "tenacity>=9.1.4",
 ]
 
 [tool.ruff]
@@ -14,9 +20,13 @@ target-version = "py312"
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
+markers = [
+    "integration: marks tests requiring real external APIs (deselect with '-m not integration')"
+]
 
 [dependency-groups]
 dev = [
+    "openai-whisper>=20250625",
     "pytest>=9.0.3",
     "pytest-mock>=3.15.1",
     "ruff>=0.15.11",
