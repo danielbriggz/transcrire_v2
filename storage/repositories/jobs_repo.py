@@ -131,3 +131,11 @@ class JobsRepository:
             started_at=datetime.fromisoformat(row["started_at"]) if row["started_at"] else None,
             updated_at=datetime.fromisoformat(row["updated_at"]) if row["updated_at"] else None,
         )
+    
+    def set_metadata(self, job_id: str, data: dict) -> None:
+    import json
+    with get_cursor(self._conn) as cur:
+        cur.execute(
+            "UPDATE jobs SET metadata_json = ? WHERE id = ?",
+            (json.dumps(data), job_id)
+        )

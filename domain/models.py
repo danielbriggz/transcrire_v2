@@ -24,6 +24,7 @@ class Job:
     heartbeat_at: Optional[datetime] = None
     started_at: Optional[datetime] = None
     updated_at: Optional[datetime] = None
+    metadata_json: Optional[str] = None
     worker_id: Optional[str] = None
 
 

@@ -32,7 +32,8 @@ CREATE TABLE IF NOT EXISTS jobs (
     worker_id       TEXT,
     started_at      TEXT,
     updated_at      TEXT,
-    heartbeat_at    TEXT,                       -- Updated every ~5s by worker
+    heartbeat_at    TEXT, 
+    metadata_json TEXT,                      -- Updated every ~5s by worker
     FOREIGN KEY (episode_id) REFERENCES episodes(id)
 );
 
