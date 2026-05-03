@@ -4,6 +4,9 @@ __pycache__/
 *.pyo
 .venv/
 venv/
+build/
+dist/
+*.spec.bak
 
 # Environment
 .env
