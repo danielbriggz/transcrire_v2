@@ -24,7 +24,15 @@ def startup() -> None:
 
     logger.info({"event": "app_startup_complete"})
 
+    # Add to the end of startup():
+    from app.orchestrator import orchestrator
+    orchestrator.start()
+
 
 def shutdown() -> None:
     """Run on application shutdown. Placeholder for cleanup."""
     logger.info({"event": "app_shutdown"})
+
+    # Add to shutdown():
+    from app.orchestrator import orchestrator
+    orchestrator.stop()
