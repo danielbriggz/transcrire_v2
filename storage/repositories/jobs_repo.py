@@ -130,6 +130,7 @@ class JobsRepository:
             heartbeat_at=datetime.fromisoformat(row["heartbeat_at"]) if row["heartbeat_at"] else None,
             started_at=datetime.fromisoformat(row["started_at"]) if row["started_at"] else None,
             updated_at=datetime.fromisoformat(row["updated_at"]) if row["updated_at"] else None,
+            metadata_json=row["metadata_json"] if row["metadata_json"] else None,  # ← add this
         )
     
     def set_metadata(self, job_id: str, data: dict) -> None:

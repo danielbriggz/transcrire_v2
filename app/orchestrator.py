@@ -37,18 +37,38 @@ class Orchestrator:
         self._running = False
         logger.info({"event": "orchestrator_stopped"})
 
+    # def _loop(self) -> None:
+    #     while self._running:
+    #         try:
+    #             conn = get_connection()
+    #             jobs_repo = JobsRepository(conn)
+
+    #             # Recover stale jobs on every poll cycle
+    #             stale = jobs_repo.mark_stale_jobs()
+    #             if stale:
+    #                 logger.warning({"event": "stale_jobs_requeued", "count": len(stale)})
+
+    #             job = jobs_repo.fetch_next_queued()
+                    # logger.debug({"event": "poll_tick", "found_job": job.id if job else None})  # ← temporary
+    #             if job:
+    #                 self._dispatch(job, conn)
+    #         except Exception as e:
+    #             logger.error({"event": "orchestrator_loop_error", "error": str(e)})
+    #         time.sleep(POLL_INTERVAL)
+
     def _loop(self) -> None:
+        conn = get_connection()          # ← open ONCE here
         while self._running:
             try:
-                conn = get_connection()
+                conn.commit()   # ← add this line; closes open read txn, sees latest writes
                 jobs_repo = JobsRepository(conn)
 
-                # Recover stale jobs on every poll cycle
                 stale = jobs_repo.mark_stale_jobs()
                 if stale:
                     logger.warning({"event": "stale_jobs_requeued", "count": len(stale)})
 
                 job = jobs_repo.fetch_next_queued()
+                logger.debug({"event": "poll_tick", "found_job": job.id if job else None})  # ← temporary
                 if job:
                     self._dispatch(job, conn)
             except Exception as e:

@@ -65,7 +65,6 @@ def new_episode_page() -> None:
                 return
 
             ui.notify("Fetching episode...", type="info")
-            # Workers are implemented in Phase 5 worker layer (see note below)
             logger.info({
                 "event": "fetch_requested",
                 "feed_url": feed_url,
@@ -73,8 +72,46 @@ def new_episode_page() -> None:
                 "season": season_input.value,
             })
 
+            conn = get_connection()
+            episodes_repo = EpisodesRepository(conn)
+            jobs_repo = JobsRepository(conn)
+
+            episode = episodes_repo.create(
+                title=f"Episode {int(episode_input.value)} (fetching...)",
+                feed_url=feed_url,
+                # feed_url=feed_url,
+                # episode_number=int(episode_input.value),
+                # season=int(season_input.value) if season_input.value else None,
+            )
+            # jobs_repo.create(episode_id=episode.id, stage=Stage.FETCH)
+            job = jobs_repo.create(episode_id=episode.id, stage=Stage.FETCH)
+            jobs_repo.set_metadata(job.id, {
+                "feed_url": feed_url,
+                "episode_number": int(episode_input.value),
+                "season": int(season_input.value) if season_input.value else None,
+            })
+            conn.commit()
+
         ui.button("Fetch Episode", on_click=on_fetch).props("color=primary").classes("w-full")
         ui.link("← Back to Dashboard", "/").classes("text-blue-500 text-sm")
+
+        # def on_fetch():
+        #     feed_url = feed_input.value.strip()
+        #     if not feed_url:
+        #         ui.notify("Please enter a feed URL.", type="negative")
+        #         return
+
+        #     ui.notify("Fetching episode...", type="info")
+        #     # Workers are implemented in Phase 5 worker layer (see note below)
+        #     logger.info({
+        #         "event": "fetch_requested",
+        #         "feed_url": feed_url,
+        #         "episode": episode_input.value,
+        #         "season": season_input.value,
+        #     })
+
+        # ui.button("Fetch Episode", on_click=on_fetch).props("color=primary").classes("w-full")
+        # ui.link("← Back to Dashboard", "/").classes("text-blue-500 text-sm")
 
 
 @ui.page("/episode/{episode_id}")
@@ -150,11 +187,39 @@ def episode_page(episode_id: str) -> None:
                         if s:
                             try:
                                 job = pipeline.enqueue_stage(episode_id, s)
+                                if s == Stage.FETCH:
+                                    conn = get_connection()
+                                    jobs_repo = JobsRepository(conn)
+                                    jobs_repo.set_metadata(job.id, {
+                                        "feed_url": episode.feed_url,
+                                        "episode_number": 1,
+                                        "season": None,
+                                    })
+                                    conn.commit()
                                 ui.notify(f"{STAGE_LABELS[s]} queued.", type="positive")
                                 logger.info({"event": "action_triggered", "action": a, "job_id": job.id})
                             except ValueError as e:
                                 ui.notify(str(e), type="negative")
                     return handle
+
+                # def make_handler(a=action, s=stage):
+                #     def handle():
+                #         if s:
+                #             try:
+                #                 job = pipeline.enqueue_stage(episode_id, s)
+                #                 # Set metadata for FetchWorker if this is a FETCH stage
+                #                 if s == Stage.FETCH and episode.feed_url:
+                #                     jobs_repo = JobsRepository(get_connection())
+                #                     jobs_repo.set_metadata(job.id, {
+                #                         "feed_url": episode.feed_url,
+                #                         "episode_number": 1,   # parsed from title below
+                #                         "season": None,
+                #                     })
+                #                 ui.notify(f"{STAGE_LABELS[s]} queued.", type="positive")
+                #                 logger.info({"event": "action_triggered", "action": a, "job_id": job.id})
+                #             except ValueError as e:
+                #                 ui.notify(str(e), type="negative")
+                #     return handle
 
                 ui.button(label, icon=icon, on_click=make_handler()) \
                     .props("color=primary" if action in ("fetch", "transcribe", "generate_captions", "create_image", "run_full_pipeline") else "flat")

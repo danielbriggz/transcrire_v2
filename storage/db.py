@@ -24,7 +24,7 @@ def get_connection() -> sqlite3.Connection:
     Use this for long-lived connections (e.g. repositories).
     Caller is responsible for closing.
     """
-    db_path = config.db_path
+    db_path = config.db_path.resolve()   # ← add .resolve()
     db_path.parent.mkdir(parents=True, exist_ok=True)
 
     conn = sqlite3.connect(str(db_path), check_same_thread=False)

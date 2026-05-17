@@ -43,6 +43,7 @@ class EpisodesRepository:
             title=row["title"],
             published_date=row["published_date"],
             created_at=datetime.fromisoformat(row["created_at"]),
+            feed_url=row["feed_url"],   # ← add this
         )
 
     def list_all(self) -> list[Episode]:
@@ -55,6 +56,7 @@ class EpisodesRepository:
                 title=r["title"],
                 published_date=r["published_date"],
                 created_at=datetime.fromisoformat(r["created_at"]),
+                feed_url=r["feed_url"],   # ← add this
             )
             for r in rows
         ]
@@ -66,6 +68,14 @@ class EpisodesRepository:
                 (status, episode_id)
             )
         logger.debug({"event": "episode_status_updated", "id": episode_id, "status": status})
+
+    def update_title(self, episode_id: str, title: str) -> None:
+        with get_cursor(self._conn) as cur:
+            cur.execute(
+                "UPDATE episodes SET title = ? WHERE id = ?",
+                (title, episode_id)
+            )
+        logger.debug({"event": "episode_title_updated", "id": episode_id, "title": title})
 
     def delete(self, episode_id: str) -> None:
         """Hard delete. Use with caution — cascades are not automatic."""

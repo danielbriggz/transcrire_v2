@@ -11,6 +11,7 @@ class Episode:
     title: str
     published_date: Optional[str]      # ISO date string from RSS
     created_at: datetime = field(default_factory=datetime.utcnow) # type: ignore
+    feed_url: Optional[str] = None   # ← add this
 
 
 @dataclass

@@ -45,11 +45,17 @@ class FetchWorker(BaseWorker):
         feed = rss_service.fetch_feed(feed_url)
         match = rss_service.match_episode(feed, episode_number, season)
 
-        # 2. Update episode record with metadata
+        # 2. Update episode record with real title
+        self._episodes_repo.update_title(
+            self._job.episode_id,
+            match.title
+        )
+
+        # 3. Update episode record with metadata
         episode_dir = config.output_dir / self._job.episode_id
         episode_dir.mkdir(parents=True, exist_ok=True)
 
-        # 3. Download audio
+        # 4. Download audio
         audio_path = episode_dir / "audio.mp3"
         rss_service.download_audio(match.audio_url, audio_path)
         checksum = compute_checksum(audio_path)
@@ -57,7 +63,7 @@ class FetchWorker(BaseWorker):
             self._job.episode_id, AssetType.AUDIO, str(audio_path), checksum
         )
 
-        # 4. Download cover art
+        # 5. Download cover art
         if match.cover_art_url:
             cover_path = episode_dir / "cover.jpg"
             import httpx

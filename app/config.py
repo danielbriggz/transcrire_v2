@@ -14,9 +14,9 @@ class TranscrireConfig(BaseSettings): # type: ignore
     gemini_api_key: str = ""
 
     # Paths (override via TRANSCRIRE_OUTPUT_DIR etc.)
-    output_dir: Path = Path("output")
-    assets_dir: Path = Path("assets")
-    db_path: Path = Path("transcrire.db")
+    db_path: Path = Path(__file__).parent.parent / "transcrire.db"
+    output_dir: Path = Path(__file__).parent.parent / "output"
+    assets_dir: Path = Path(__file__).parent.parent / "assets"
     config_dir: Path = Path.home() / ".transcrire"
 
     # Transcription defaults
