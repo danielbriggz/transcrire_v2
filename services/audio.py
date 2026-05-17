@@ -1,5 +1,7 @@
 import subprocess
 import json
+import sys
+import os
 from pathlib import Path
 from typing import Optional
 
@@ -11,6 +13,18 @@ logger = get_logger(__name__)
 GROQ_MAX_BYTES = 25 * 1024 * 1024   # 25 MB — Groq's per-request file size limit
 CHUNK_DURATION_SECONDS = 600         # 10-minute chunks
 
+def _get_ffmpeg_path(tool: str) -> str:
+    """
+    In a PyInstaller bundle, FFmpeg is extracted to a temp directory.
+    sys._MEIPASS points to that directory.
+    Falls back to PATH lookup for development.
+    """
+    if getattr(sys, "frozen", False):
+        bundle_dir = Path(sys._MEIPASS)
+        tool_path = bundle_dir / f"{tool}.exe"
+        if tool_path.exists():
+            return str(tool_path)
+    return tool  # Development: rely on PATH
 
 def get_duration(audio_path: Path) -> float:
     """
@@ -97,13 +111,9 @@ def split_into_chunks(
 
 
 def _run(cmd: list[str]) -> subprocess.CompletedProcess:
-    """Execute a subprocess command. Raises AudioProcessingError on non-zero exit."""
-    try:
-        result = subprocess.run(cmd, capture_output=True, text=True, check=False)
-    except FileNotFoundError as e:
-        raise AudioProcessingError(
-            f"FFmpeg/FFprobe not found. Ensure it is installed and on PATH.\n{e}"
-        ) from e
+    # Replace bare "ffmpeg"/"ffprobe" with resolved paths
+    if cmd[0] in ("ffmpeg", "ffprobe"):
+        cmd[0] = _get_ffmpeg_path(cmd[0])
 
     if result.returncode != 0:
         raise AudioProcessingError(
