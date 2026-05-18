@@ -1,5 +1,5 @@
 from nicegui import ui, app as nicegui_app
-
+from interface.gui.pages import dashboard, settings, episode, help as help_page
 from app.lifecycle import startup, shutdown
 from interface.gui.pages import dashboard, settings, episode
 from app.logging import get_logger
@@ -19,6 +19,7 @@ def create_app() -> None:
     _ = dashboard
     _ = settings
     _ = episode
+    _ = help_page
 
 
 def run() -> None:

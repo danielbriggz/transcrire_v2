@@ -51,8 +51,8 @@ def dashboard_page() -> None:
         with ui.row().classes("w-full items-center justify-between"):
             ui.label("Transcrire").classes("text-3xl font-bold")
             with ui.row().classes("gap-2"):
-                ui.button("Settings", on_click=lambda: ui.navigate.to("/settings")) \
-                    .props("flat")
+                ui.button("Settings", on_click=lambda: ui.navigate.to("/settings")).props("flat")
+                ui.button("Help", on_click=lambda: ui.navigate.to("/help")).props("flat")
                 ui.button(
                     "New Episode",
                     on_click=lambda: ui.navigate.to("/episode/new")
