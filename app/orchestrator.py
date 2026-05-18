@@ -11,6 +11,7 @@ from workers.transcribe_worker import TranscribeWorker
 from workers.caption_worker import CaptionWorker
 from workers.image_worker import ImageWorker
 from app.logging import get_logger
+from notifications.toast import notify_pipeline_complete
 
 logger = get_logger(__name__)
 
@@ -98,6 +99,12 @@ class Orchestrator:
         # Run in a new thread so the poll loop stays responsive
         thread = threading.Thread(target=worker.execute, daemon=True)
         thread.start()
+
+        if job.stage == Stage.IMAGE:
+            episodes_repo = EpisodesRepository(conn)
+            ep = episodes_repo.get_by_id(job.episode_id)
+            if ep:
+                notify_pipeline_complete(ep.title)
 
 
 # Shared instance — started in app/lifecycle.py
